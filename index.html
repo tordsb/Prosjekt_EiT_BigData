@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+/*Define main link cosmetics*/
+.link{
+	stroke: #131313;
+	stroke-opacity: .8;
+}
+
+/*Define main node cosmetics*/
+.node {
+	stroke: #0000ff;
+	stroke-width: .2px;
+	stroke-opacity: .8;
+}
+
+/*Define node text cosmetics*/
+.node text {
+	pointer-events: none;
+	font: 15px sans-serif;
+	font-weight: bolder;
+}
+
+/*Define node categories*/
+.node.category1{
+	fill: red;
+	stroke-opacity: .3;
+	stroke-width: 4;
+}
+.node.category2{
+	fill: yellow;
+	stroke-opacity: .3;
+	stroke-width: 4;
+}
+
+/*Defining the link-types*/
+.link.type1{
+	stroke: black;
+	stroke-opacity: .3;
+	stroke-width: 2;
+}
+.link.type2{
+	stroke: brown;
+	stroke-opacity: .3;
+	stroke-width: 2;
+}
+
+</style>
+<body>
+
+
+<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>  	
+<script>
+
+//Path: Where to find links and nodes. 
+var linkpath = ("links.csv");
+var nodepath = ("nodes.csv");
+
+//Variables describing the size of the page
+var width = 1000,
+	height = 600;
+
+//Colors used in the script are defined in categories, a description of the categories can be found here: http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d
+var color = d3.scale.category20();
+
+//Make svg (Scalable vector graphics). The main square where the network will be made inside. It will append the svg-square to the body of the html file. 
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+
+
+</script>
