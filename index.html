@@ -69,6 +69,52 @@ var svg = d3.select("body").append("svg")
 	.attr("width", width)
 	.attr("height", height);
 
+//Setting up the Force layout
+var force = d3.layout.force()
+	//The layout using the same width and height as the svg
+	.size([width, height])
+	//Length of the links (distance between nodes)(Believe it is measured in pixels) 
+	.linkDistance(150)
+	//Charge changes how nodes will get to each other. Negative values are further apart.
+	.Charge(-100);
 
+//Converting the csv node file into array of objects.
+d3.csv(nodepath, function(nodes){
+	
+	//Declaring the node lookup table to relate the links file and the nodes file. 
+	var nodelookup = {};
+	var nodecollector = {};
+
+	count = 0;
+
+	//Going through the nodes and adding them to the array.
+	nodes.forEach(function(row){
+		nodelookup[row.node] = count;
+
+		nodecollector[row.node] = {name: row.node, group: row.group};
+
+		count++;
+	});
+
+	//Converting the csv link file into array of objects, so that it matches the nodes.
+	d3.csv(linkpath, function(linkchecker){
+
+		//Declaring the link collection
+		var linkcollector = {};
+		indexsource = 0;
+		indextarget = 0;
+
+		count = 0;
+		//Going through the links and adding them to the array
+		linkchecker.forEach(function(link) {
+			linkcollector[count] = {source: nodelookup[link.source], target: nodelookup[link.target], type: link.type };
+
+			count++
+		});
+
+		var nodes = d3.values(nodecollector);
+		var links = d3.values(linkcollector);
+	});
+});
 
 </script>
