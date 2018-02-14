@@ -1,0 +1,176 @@
+//WIKINETWORK
+<br>
+
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+/*Define main link cosmetics*/
+.link{
+	stroke: none;
+	stroke-opacity: .2;
+}
+
+/*Define main node cosmetics*/
+.node {
+	stroke: black;
+	stroke-width: .5px;
+	stroke-opacity: .8;
+}
+
+/*Define node text cosmetics*/
+.node text {
+	pointer-events: none;
+	font: 15px sans-serif;
+	font-weight: bolder;
+}
+
+/*Define node categories*/
+.node.group1{
+	fill: blue;
+	stroke-opacity: .3;
+	stroke-width: 4;
+}
+.node.group2{
+	fill: pink;
+	stroke-opacity: .3;
+	stroke-width: 4;
+}
+
+/*Defining the link-types*/
+.link.type1{
+	stroke: black;
+	stroke-opacity: .3;
+	stroke-width: 4;
+}
+.link.type2{
+	stroke: green;
+	stroke-opacity: .3;
+	stroke-width: 4;
+}
+.link.type3{
+	stroke: red;
+	stroke-opacity: .3;
+	stroke-width: 4;
+}
+
+</style>
+</style>
+<body>
+
+
+<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>  	
+<script>
+
+//Path: Where to find links and nodes. 
+var linkpath = ("links2.csv");
+var nodepath = ("nodes2.csv");
+
+//Variables describing the size of the page
+var width = 1000,
+	height = 600;
+
+//Colors used in the script are defined in categories, a description of the categories can be found here: http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d
+var color = d3.scale.category20();
+
+//Make svg (Scalable vector graphics). The main square where the network will be made inside. It will append the svg-square to the body of the html file. 
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+//Setting up the Force layout
+	var force = d3.layout.force()
+	//The layout using the same width and height as the svg
+	.size([width, height])
+	//Length of the links (distance between nodes)(Believe it is measured in pixels) 
+	.linkDistance(150)
+	//Charge changes how nodes will get to each other. Negative values are further apart.
+	.charge(-100);
+
+//Converting the csv node file into array of objects.
+d3.csv(nodepath, function(nodes) {
+	
+	//Declaring the node lookup table to relate the links file and the nodes file. 
+	var nodelookup = {};
+	var nodecollector = {};
+
+	count = 0;
+
+	//Going through the nodes and adding them to the array.
+	nodes.forEach(function(row){
+		nodelookup[row.node] = count;
+
+		nodecollector[row.node] = {name: row.node, group: row.group};
+
+		count++;
+	});
+
+	//Converting the csv link file into array of objects, so that it matches the nodes.
+	d3.csv(linkpath, function(linkchecker){
+
+		//Declaring the link collection
+		var linkcollector = {};
+		indexsource = 0;
+		indextarget = 0;
+
+		count = 0;
+		//Going through the links and adding them to the array
+		linkchecker.forEach(function(link) {
+			linkcollector[count] = {source: nodelookup[link.source], target: nodelookup[link.target], type: link.type };
+
+			count++
+		});
+
+		//Puts nodes and links in arrays, and not map/table.
+		var nodes = d3.values(nodecollector);
+		var links = d3.values(linkcollector);
+
+		//Create the link lines.
+		var link = svg.selectAll(".link")
+			.data(links)
+			.enter().append("line")
+			.attr("class", function(d){ return "link" + d.type; })
+
+		//Create the node circles.
+		var node = svg.selectAll(".node")
+			.data(nodes)
+			.enter().append("g")
+			.attr("class","node");
+
+		//Adding small rectangles to drag, Hopefully this can be ignored
+		node.append("rect")
+			.attr("width",8)
+			.attr("height",8)
+			.attr("class",function(d){return "node" + d.group});
+			
+
+		//Add text to the nodes
+		node.append("text")
+			.attr("dx", 12)
+			.attr("dy", ".35em")
+			.text(function(d){return d.name});
+
+		//Start the simulation
+		force
+			.nodes(nodes)
+			.links(links)
+			.start();
+
+
+		force.on("tick", function(){
+			link.attr("x1",function(d){return d.source.x; })
+				.attr("y1",function(d){return d.source.y; })
+				.attr("x2",function(d){return d.target.x; })
+				.attr("y2",function(d){return d.target.y; });
+
+			node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+			/*
+			node.attr("cx",function(d){return d.x})
+				.attr("cy",function(d){return d.y});
+		*/
+		});
+	});
+});
+
+</script>
